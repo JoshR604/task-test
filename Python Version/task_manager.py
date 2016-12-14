@@ -16,22 +16,47 @@
         - You cannot edit/change the TaskManager class directly. Think of it as a 3rd party library
         - You can create new objects, etc
 """
-
+import uuid
+import re
 
 class Task(object):
 
     def __init__(self, name):
-        self._id = 0
+        self._id = uuid.uuid4()
         self._name = name
         self._value = None
         self._completed = False
 
+    def __eq__(self, other):
+        """Override the default Equatable behaviour"""
+        if isinstance(other, self.__class__):
+            return self.id == other.id
+        return False
+
     def complete(self):
-        _completed = True
+        self.is_completed = True
+
+    def __update_value(self):
+        """Assuming Python3.x -- for Python2.x use 'basestring' """
+        if isinstance(self._name, str):
+            occurances = re.findall('CCN', self._name, flags=re.IGNORECASE)
+            if occurances:
+                self._value = len(occurances)
+            else:
+                self._value = None
+        else:
+            self._value = None
+
+        print('Value {value} for {name}'.format(value=self._value, name=self._name))
 
     @property
     def is_completed(self):
         return self._completed
+
+    @is_completed.setter
+    def is_completed(self, val):
+        self._completed = val
+        self.__update_value()
 
     @property
     def name(self):
